@@ -1,16 +1,11 @@
-from fastapi import FastAPI
-from sqlalchemy import create_engine
+from fastapi import Depends, FastAPI
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from database import get_db
 
-# Inicialización de FastAPI
-app = FastAPI(title="Sistema de Gestión API")
+app = FastAPI()
 
-# URL de conexión a tu base de datos local
-# Formato: postgresql://usuario:contraseña@servidor:puerto/nombre_bd
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:TU_CONTRASEÑA@localhost:5432/sistema_gestion"
-
-# Motor de conexión de SQLAlchemy
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-@app.get("/")
-def read_root():
-    return {"status": "ok", "mensaje": "Backend FastAPI en línea y conectado"}
+@app.get("/healthcheck")
+def db_healthcheck(db: Session = Depends(get_db)):
+    db.execute(text("SELECT 1"))
+    return {"status": "ok", "database": "conectada"}
