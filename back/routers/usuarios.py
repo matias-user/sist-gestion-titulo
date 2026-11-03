@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
+from datetime import datetime, timedelta
 import models
 import schemas
 import utils  # Importamos nuestras funciones de seguridad
+from auth import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(
     prefix="/usuarios",
@@ -12,27 +14,25 @@ router = APIRouter(
 
 @router.post("/login")
 def login_usuario(credenciales: schemas.LoginRequest, db: Session = Depends(get_db)):
-    # 1. Buscar al usuario por su RUT en la base de datos
+    # 1. Buscar al usuario por su RUT
     usuario = db.query(models.Usuario).filter(models.Usuario.rut == credenciales.rut).first()
     
-    if not usuario:
+    if not usuario or not utils.verify_password(credenciales.password, usuario.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="RUT o contraseña incorrectos"
         )
     
-    # 2. Verificar la contraseña en texto plano contra el hash guardado en PostgreSQL
-    password_valido = utils.verify_password(credenciales.password, usuario.password_hash)
+    # 2. Crear el token JWT con el RUT y el rol del usuario en el payload
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": usuario.rut, "id_rol": usuario.id_rol}, expires_delta=access_token_expires
+    )
     
-    if not password_valido:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="RUT o contraseña incorrectos"
-        )
-    
-    # 3. Retornar una respuesta exitosa (puedes emitir un Token JWT más adelante)
+    # 3. Retornar el token y la información del usuario
     return {
-        "mensaje": "¡Inicio de sesión exitoso!",
+        "access_token": access_token,
+        "token_type": "bearer",
         "usuario": {
             "id_usuario": usuario.id_usuario,
             "rut": usuario.rut,
