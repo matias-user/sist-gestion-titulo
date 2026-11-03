@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+import schemas
 
 class UsuarioBase(BaseModel):
     rut: str
@@ -15,3 +16,7 @@ class UsuarioResponse(UsuarioBase):
 
     class Config:
         from_attributes = True
+
+class LoginRequest(schemas.BaseModel):
+    rut: str
+    password: str
