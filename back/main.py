@@ -1,13 +1,16 @@
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from database import engine
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
-from routers import usuarios    
+from routers import usuarios, catalogos    
 import models
 import schemas
 
-app = FastAPI()
+
+models.Base.metadata.create_all(bind=engine)
+app = FastAPI(title="Sistema de Gestión API")
 
 origins = [
     "http://localhost:5173",
@@ -23,3 +26,4 @@ app.add_middleware(
 
 # Conectamos el router de la entidad Usuarios
 app.include_router(usuarios.router)
+app.include_router(catalogos.router)
