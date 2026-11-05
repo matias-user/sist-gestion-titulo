@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Box, Card, CardContent, TextField, Button, Typography, Alert } from '@mui/material';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const [rut, setRut] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); 
+  // Eliminamos const [success, setSuccess] porque ya no lo necesitamos
   
-  // Extraemos la función login de nuestro contexto global
+  const navigate = useNavigate();
   const { login } = useAuth(); 
 
   const handleSubmit = async (e) => {
@@ -27,16 +30,14 @@ export default function Login() {
 
       const data = await response.json();
       
-      // Inyectamos los datos recibidos del backend en la memoria global de React
+      // Guardamos la sesión global y redirigimos instantáneamente al Home
       login(data.usuario, data.access_token);
+      navigate('/'); 
       
-      alert(`¡Bienvenido ${data.usuario.nombre_completo}!`);
-      // Aquí el siguiente paso será redirigir al Home en lugar de lanzar una alerta
-
     } catch (err) {
       setError(err.message);
     }
-  };  
+  };
 
   return (
     <Container maxWidth="xs">
@@ -46,42 +47,21 @@ export default function Login() {
             <Typography variant="h5" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
               Sistema de Gestión
             </Typography>
-            <Typography variant="body2" color="textSecondary" align="center" sx={{ mb: 3 }}>
-              Inicia sesión con tus credenciales
-            </Typography>
-
+            
+            {/* Solo mantenemos la alerta de error */}
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-            {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
             <Box component="form" onSubmit={handleSubmit} noValidate>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="rut"
-                label="RUT"
-                name="rut"
-                autoComplete="rut"
-                autoFocus
-                value={rut}
-                onChange={(e) => setRut(e.target.value)}
+              <TextField 
+                margin="normal" required fullWidth label="RUT" 
+                value={rut} onChange={(e) => setRut(e.target.value)} 
               />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Contraseña"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+              <TextField 
+                margin="normal" required fullWidth label="Contraseña" type="password" 
+                value={password} onChange={(e) => setPassword(e.target.value)} 
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
+              <Button 
+                type="submit" fullWidth variant="contained" 
                 sx={{ mt: 3, mb: 2, py: 1.5, fontWeight: 'bold' }}
               >
                 Ingresar
