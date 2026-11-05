@@ -4,6 +4,7 @@ from database import get_db
 import models
 
 router = APIRouter(
+    prefix="/catalogos",
     tags=["Catálogos y Maestros"]
 )
 
