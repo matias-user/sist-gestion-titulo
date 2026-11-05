@@ -5,20 +5,18 @@ export default function Login() {
   const [rut, setRut] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  
+  // Extraemos la función login de nuestro contexto global
+  const { login } = useAuth(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     try {
-      // Petición POST al backend para autenticar
       const response = await fetch('http://localhost:8000/usuarios/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rut, password }),
       });
 
@@ -28,16 +26,17 @@ export default function Login() {
       }
 
       const data = await response.json();
-      console.log('Login exitoso:', data);
-      setSuccess('¡Inicio de sesión exitoso! Bienvenido.');
       
-      // Aquí puedes guardar los datos del usuario o un token en el almacenamiento local del navegador
-      // localStorage.setItem('usuario', JSON.stringify(data.usuario));
+      // Inyectamos los datos recibidos del backend en la memoria global de React
+      login(data.usuario, data.access_token);
+      
+      alert(`¡Bienvenido ${data.usuario.nombre_completo}!`);
+      // Aquí el siguiente paso será redirigir al Home en lugar de lanzar una alerta
 
     } catch (err) {
       setError(err.message);
     }
-  };
+  };  
 
   return (
     <Container maxWidth="xs">
