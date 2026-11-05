@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 
 // 1. Inicializamos el contexto
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 // 2. Creamos el Proveedor que envolverá la aplicación
 export const AuthProvider = ({ children }) => {
@@ -44,3 +44,4 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
+
