@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from datetime import datetime
 import schemas
 
 class UsuarioBase(BaseModel):
@@ -20,3 +21,17 @@ class UsuarioResponse(UsuarioBase):
 class LoginRequest(schemas.BaseModel):
     rut: str
     password: str
+
+
+# --- ESQUEMAS PARA REGISTRO DE ENTRADAS ---
+class RegistroEntradaCreate(BaseModel):
+    # El usuario solo hace clic en un botón, no envía datos en el body.
+    pass
+
+class RegistroEntradaResponse(BaseModel):
+    id_entrada: int
+    fecha_hora: datetime
+    id_usuario: int
+
+    class Config:
+        from_attributes = True

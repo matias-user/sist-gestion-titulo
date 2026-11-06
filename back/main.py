@@ -4,7 +4,7 @@ from database import engine
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
-from routers import usuarios, catalogos    
+from routers import usuarios, catalogos, entradas    
 import models
 import schemas
 
@@ -27,3 +27,4 @@ app.add_middleware(
 # Conectamos el router de la entidad Usuarios
 app.include_router(usuarios.router)
 app.include_router(catalogos.router)
+app.include_router(entradas.router)
