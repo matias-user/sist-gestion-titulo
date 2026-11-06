@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 import schemas
 
@@ -15,8 +15,7 @@ class UsuarioResponse(UsuarioBase):
     id_usuario: int
     estado_activo: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class LoginRequest(schemas.BaseModel):
     rut: str
@@ -33,5 +32,5 @@ class RegistroEntradaResponse(BaseModel):
     fecha_hora: datetime
     id_usuario: int
 
-    class Config:
-        from_attributes = True
+    # Usar SOLO esta línea:
+    model_config = ConfigDict(from_attributes=True)
