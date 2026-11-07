@@ -10,37 +10,49 @@ import { useAuth } from '../context/AuthContext';
 export default function Asignaciones() {
   const { usuario } = useAuth();
   
-  // Estados para el formulario (Solo Administradores)
+  // Estados para el formulario
   const [idUsuarioDestino, setIdUsuarioDestino] = useState('');
   const [idTipoAsignacion, setIdTipoAsignacion] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [fechaAsignacion, setFechaAsignacion] = useState('');
   
-  // Estados para la tabla y notificaciones
+  // Estados para las listas desplegables y la tabla
+  const [usuariosList, setUsuariosList] = useState([]);
+  const [tiposAsignacion, setTiposAsignacion] = useState([]);
   const [asignaciones, setAsignaciones] = useState([]);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
-  // Función para cargar el historial de asignaciones
-  const cargarAsignaciones = async () => {
+  // Función unificada para cargar todos los datos iniciales
+  const cargarDatos = async () => {
     const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch('http://localhost:8000/asignaciones/', {
+      // 1. Cargar Historial de Asignaciones
+      const resAsignaciones = await fetch('http://localhost:8000/asignaciones/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) {
-        const data = await response.json();
-        setAsignaciones(data);
+      if (resAsignaciones.ok) setAsignaciones(await resAsignaciones.json());
+
+      // 2. Cargar Catálogo de Tipos (Solo si es Admin)
+      if (usuario?.id_rol === 1 || usuario?.id_rol === 2) {
+        const resTipos = await fetch('http://localhost:8000/catalogos/tipos-asignacion');
+        if (resTipos.ok) setTiposAsignacion(await resTipos.json());
+
+        // 3. Cargar Usuarios para asignarles tareas
+        const resUsuarios = await fetch('http://localhost:8000/usuarios/', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (resUsuarios.ok) setUsuariosList(await resUsuarios.json());
       }
     } catch (error) {
-      console.error("Error al cargar asignaciones:", error);
+      console.error("Error al cargar los datos:", error);
     }
   };
 
   useEffect(() => {
-    cargarAsignaciones();
-  }, []);
+    cargarDatos();
+  }, [usuario]);
 
-  // Función para enviar el formulario (POST)
+  // Enviar el formulario (POST)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje({ tipo: '', texto: '' });
@@ -68,12 +80,12 @@ export default function Asignaciones() {
 
       setMensaje({ tipo: 'success', texto: '¡Asignación creada exitosamente!' });
       
-      // Limpiar formulario y refrescar tabla
+      // Limpiar formulario y refrescar la tabla
       setIdUsuarioDestino('');
       setIdTipoAsignacion('');
       setDescripcion('');
       setFechaAsignacion('');
-      cargarAsignaciones();
+      cargarDatos();
 
     } catch (error) {
       setMensaje({ tipo: 'error', texto: error.message });
@@ -84,7 +96,7 @@ export default function Asignaciones() {
     <Container maxWidth="lg">
       <Box sx={{ mt: 5, mb: 5 }}>
         
-        {/* Renderizado Condicional: Formulario solo para roles 1 (SuperAdmin) y 2 (Admin) */}
+        {/* Formulario solo para Administradores */}
         {(usuario?.id_rol === 1 || usuario?.id_rol === 2) && (
           <Card sx={{ p: 2, mb: 4, boxShadow: 3 }}>
             <CardContent>
@@ -97,24 +109,41 @@ export default function Asignaciones() {
                 <Alert severity={mensaje.tipo} sx={{ mb: 3 }}>{mensaje.texto}</Alert>
               )}
 
-              <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
                 
-                {/* Nota: En un entorno real, estos Selects consumirían los endpoints de /usuarios y /tipos_asignacion */}
-                <TextField
-                  label="ID del Trabajador"
-                  type="number"
-                  required
-                  value={idUsuarioDestino}
-                  onChange={(e) => setIdUsuarioDestino(e.target.value)}
-                />
+                {/* Select Dinámico: Usuarios */}
+                <FormControl fullWidth required>
+                  <InputLabel id="usuario-destino-label">Trabajador</InputLabel>
+                  <Select
+                    labelId="usuario-destino-label"
+                    value={idUsuarioDestino}
+                    label="Trabajador"
+                    onChange={(e) => setIdUsuarioDestino(e.target.value)}
+                  >
+                    {usuariosList.map((user) => (
+                      <MenuItem key={user.id_usuario} value={user.id_usuario}>
+                        {user.nombre_completo} (RUT: {user.rut})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 
-                <TextField
-                  label="ID del Tipo de Asignación (Ej. 1)"
-                  type="number"
-                  required
-                  value={idTipoAsignacion}
-                  onChange={(e) => setIdTipoAsignacion(e.target.value)}
-                />
+                {/* Select Dinámico: Tipos de Asignación */}
+                <FormControl fullWidth required>
+                  <InputLabel id="tipo-asignacion-label">Categoría de la Tarea</InputLabel>
+                  <Select
+                    labelId="tipo-asignacion-label"
+                    value={idTipoAsignacion}
+                    label="Categoría de la Tarea"
+                    onChange={(e) => setIdTipoAsignacion(e.target.value)}
+                  >
+                    {tiposAsignacion.map((tipo) => (
+                      <MenuItem key={tipo.id_tipo_asignacion} value={tipo.id_tipo_asignacion}>
+                        {tipo.nombre_tipo}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
                 <TextField
                   label="Descripción de la Tarea"
@@ -142,7 +171,7 @@ export default function Asignaciones() {
           </Card>
         )}
 
-        {/* Tabla de Asignaciones (Visible para todos) */}
+        {/* Tabla de Asignaciones */}
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
           {(usuario?.id_rol === 1 || usuario?.id_rol === 2) ? "Historial Global de Asignaciones" : "Mis Asignaciones Diarias"}
         </Typography>
@@ -151,7 +180,7 @@ export default function Asignaciones() {
           <Table>
             <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }}>ID Asignación</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
                 {(usuario?.id_rol === 1 || usuario?.id_rol === 2) && (
                   <TableCell sx={{ fontWeight: 'bold' }}>ID Trabajador</TableCell>
                 )}
