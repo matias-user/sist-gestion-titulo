@@ -6,6 +6,7 @@ import Login from './components/Login';
 import RegistroUsuarios from './components/RegistroUsuarios';
 import Asistencia from './components/Asistencia';
 import ProtectedRoute from './components/ProtectedRoute';
+import GestionCatalogos from './components/GestionCatalogos';
 import Asignaciones from './components/Asignaciones';
 import Home from './components/Home'; // Importamos la nueva vista
 
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/registro" element={<RegistroUsuarios />} />
           <Route path="/asistencia" element={<Asistencia />} />
           <Route path="/asignaciones" element={<Asignaciones />} />
+          <Route path="/catalogos" element={<GestionCatalogos />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

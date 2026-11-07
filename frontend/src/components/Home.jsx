@@ -56,6 +56,25 @@ export default function Home() {
             >
               Ver Asignaciones
             </Button>
+            {/* GUARDIA VISUAL: Solo Super Admin (1) o Admin (2) verán estos botones */}
+            {(usuario?.id_rol === 1 || usuario?.id_rol === 2) && (
+              <>
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate('/registro')}
+                >
+                  Registrar Nuevos Usuarios
+                </Button>
+
+                <Button
+                  variant="contained"
+                  color="info"
+                  onClick={() => navigate('/catalogos')}
+                >
+                  Administrar Catálogos
+                </Button>
+              </>
+            )}
           </Box>
         </CardContent>
       </Card>
