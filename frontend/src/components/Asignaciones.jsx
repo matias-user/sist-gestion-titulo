@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Container, Box, Card, CardContent, TextField, Button, 
+import {
+  Container, Box, Card, CardContent, TextField, Button,
   Typography, Alert, FormControl, InputLabel, Select, MenuItem,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useAuth } from '../context/AuthContext';
 
 export default function Asignaciones() {
   const { usuario } = useAuth();
-  
+
   // Estados para el formulario
   const [idUsuarioDestino, setIdUsuarioDestino] = useState('');
   const [idTipoAsignacion, setIdTipoAsignacion] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [fechaAsignacion, setFechaAsignacion] = useState('');
-  
+
   // Estados para las listas desplegables y la tabla
   const [usuariosList, setUsuariosList] = useState([]);
   const [tiposAsignacion, setTiposAsignacion] = useState([]);
@@ -79,7 +79,7 @@ export default function Asignaciones() {
       }
 
       setMensaje({ tipo: 'success', texto: '¡Asignación creada exitosamente!' });
-      
+
       // Limpiar formulario y refrescar la tabla
       setIdUsuarioDestino('');
       setIdTipoAsignacion('');
@@ -92,10 +92,34 @@ export default function Asignaciones() {
     }
   };
 
+  const marcarCompletada = async (idAsignacion) => {
+    setMensaje({ tipo: '', texto: '' });
+    const token = localStorage.getItem('access_token');
+
+    try {
+      const response = await fetch(`http://localhost:8000/asignaciones/${idAsignacion}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ estado: 'Completada' })
+      });
+
+      if (!response.ok) throw new Error('Error al actualizar el estado.');
+
+      setMensaje({ tipo: 'success', texto: '¡Tarea marcada como completada!' });
+      cargarDatos(); // Refresca la tabla automáticamente
+
+    } catch (error) {
+      setMensaje({ tipo: 'error', texto: error.message });
+    }
+  };
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 5, mb: 5 }}>
-        
+
         {/* Formulario solo para Administradores */}
         {(usuario?.id_rol === 1 || usuario?.id_rol === 2) && (
           <Card sx={{ p: 2, mb: 4, boxShadow: 3 }}>
@@ -104,13 +128,13 @@ export default function Asignaciones() {
                 <AssignmentIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
                 Nueva Asignación de Trabajo
               </Typography>
-              
+
               {mensaje.texto && (
                 <Alert severity={mensaje.tipo} sx={{ mb: 3 }}>{mensaje.texto}</Alert>
               )}
 
               <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-                
+
                 {/* Select Dinámico: Usuarios */}
                 <FormControl fullWidth required>
                   <InputLabel id="usuario-destino-label">Trabajador</InputLabel>
@@ -127,7 +151,7 @@ export default function Asignaciones() {
                     ))}
                   </Select>
                 </FormControl>
-                
+
                 {/* Select Dinámico: Tipos de Asignación */}
                 <FormControl fullWidth required>
                   <InputLabel id="tipo-asignacion-label">Categoría de la Tarea</InputLabel>
@@ -175,7 +199,7 @@ export default function Asignaciones() {
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
           {(usuario?.id_rol === 1 || usuario?.id_rol === 2) ? "Historial Global de Asignaciones" : "Mis Asignaciones Diarias"}
         </Typography>
-        
+
         <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
           <Table>
             <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
@@ -187,6 +211,7 @@ export default function Asignaciones() {
                 <TableCell sx={{ fontWeight: 'bold' }}>Fecha</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Descripción</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Estado</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Acciones</TableCell> {/* Nueva Columna */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -204,7 +229,24 @@ export default function Asignaciones() {
                     <TableCell>{asignacion.fecha_asignacion}</TableCell>
                     <TableCell>{asignacion.descripcion}</TableCell>
                     <TableCell>{asignacion.estado || 'Pendiente'}</TableCell>
+                    <TableCell>
+                      {asignacion.estado !== 'Completada' ? (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="success"
+                          onClick={() => marcarCompletada(asignacion.id_asignacion)}
+                        >
+                          Completar
+                        </Button>
+                      ) : (
+                        <Typography variant="body2" sx={{ color: 'green', fontWeight: 'bold' }}>
+                          ✓ Lista
+                        </Typography>
+                      )}
+                    </TableCell>
                   </TableRow>
+
                 ))
               )}
             </TableBody>
