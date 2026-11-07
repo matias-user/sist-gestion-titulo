@@ -52,3 +52,13 @@ class AsignacionResponse(AsignacionBase):
     estado: str
 
     model_config = ConfigDict(from_attributes=True)
+
+# --- ESQUEMAS PARA TIPOS DE ASIGNACIÓN (CATÁLOGOS) ---
+class TipoAsignacionCreate(BaseModel):
+    nombre_tipo: str
+
+class TipoAsignacionResponse(BaseModel):
+    id_tipo_asignacion: int
+    nombre_tipo: str
+
+    model_config = ConfigDict(from_attributes=True)
