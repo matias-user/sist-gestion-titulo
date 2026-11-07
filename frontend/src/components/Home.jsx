@@ -22,16 +22,16 @@ export default function Home() {
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
             Bienvenido, {usuario?.nombre_completo}
           </Typography>
-          
+
           <Box sx={{ display: 'flex', gap: 1, mb: 4 }}>
             <Chip label={`Rol ID: ${usuario?.id_rol}`} color="primary" />
             <Chip label={`Área ID: ${usuario?.id_area}`} color="secondary" />
           </Box>
 
           <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
-            <Button 
-              variant="contained" 
-              color="error" 
+            <Button
+              variant="contained"
+              color="error"
               startIcon={<ExitToAppIcon />}
               onClick={handleLogout}
             >
@@ -40,14 +40,22 @@ export default function Home() {
 
             {/* GUARDIA VISUAL: Solo Super Admin (1) o Admin (2) verán este botón */}
             {(usuario?.id_rol === 1 || usuario?.id_rol === 2) && (
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 startIcon={<GroupAddIcon />}
                 onClick={() => navigate('/registro')}
               >
                 Registrar Nuevos Usuarios
               </Button>
+
             )}
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => navigate('/asignaciones')}
+            >
+              Ver Asignaciones
+            </Button>
           </Box>
         </CardContent>
       </Card>
