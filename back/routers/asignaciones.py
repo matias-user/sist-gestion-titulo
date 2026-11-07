@@ -54,3 +54,26 @@ def obtener_asignaciones(
     return db.query(models.AsignacionTrabajo)\
              .filter(models.AsignacionTrabajo.id_usuario == usuario_actual.id_usuario)\
              .order_by(models.AsignacionTrabajo.fecha_asignacion.desc()).all()
+
+
+@router.patch("/{id_asignacion}", response_model=schemas.AsignacionResponse)
+def actualizar_estado_asignacion(
+    id_asignacion: int,
+    estado_update: schemas.AsignacionUpdate,
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(auth.get_current_user)
+):
+    asignacion = db.query(models.AsignacionTrabajo).filter(models.AsignacionTrabajo.id_asignacion == id_asignacion).first()
+    
+    if not asignacion:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Asignación no encontrada.")
+    
+    # Seguridad: Si es rol 3 (Básico), verificar que la tarea le pertenezca
+    if usuario_actual.id_rol == 3 and asignacion.id_usuario != usuario_actual.id_usuario:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para modificar esta tarea.")
+
+    asignacion.estado = estado_update.estado
+    db.commit()
+    db.refresh(asignacion)
+    
+    return asignacion
