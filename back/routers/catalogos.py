@@ -40,3 +40,15 @@ def obtener_tipos_asignacion(db: Session = Depends(get_db)):
 @router.get("/tipos-merma")
 def obtener_tipos_merma(db: Session = Depends(get_db)):
     return db.query(models.TipoMerma).all()
+
+@router.post("/tipos-merma", response_model=schemas.TipoMermaResponse, status_code=status.HTTP_201_CREATED)
+def crear_tipo_merma(
+    tipo: schemas.TipoMermaCreate, 
+    db: Session = Depends(get_db),
+    admin_actual: models.Usuario = Depends(auth.requerir_roles([1, 2])) # Solo admins
+):
+    nuevo_tipo = models.TipoMerma(descripcion_tipo=tipo.descripcion_tipo)
+    db.add(nuevo_tipo)
+    db.commit()
+    db.refresh(nuevo_tipo)
+    return nuevo_tipo
