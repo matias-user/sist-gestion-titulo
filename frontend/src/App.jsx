@@ -9,6 +9,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import GestionCatalogos from './components/GestionCatalogos';
 import Asignaciones from './components/Asignaciones';
 import GestionProductos from './components/GestionProductos';
+import Reporteria from './components/Reporteria';
 import Mermas from './components/Mermas';
 import Home from './components/Home'; 
 
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/catalogos" element={<GestionCatalogos />} />
           <Route path="/mermas" element={<Mermas />} />
           <Route path="/productos" element={<GestionProductos />} />
+          <Route path="/reportes" element={<Reporteria />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
