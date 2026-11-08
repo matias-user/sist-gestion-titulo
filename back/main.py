@@ -4,7 +4,7 @@ from database import engine
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
-from routers import usuarios, catalogos, entradas, asignaciones, mermas, productos    
+from routers import usuarios, catalogos, entradas, asignaciones, mermas, productos, reportes
 import models
 import schemas
 
@@ -31,3 +31,4 @@ app.include_router(entradas.router)
 app.include_router(asignaciones.router)
 app.include_router(mermas.router)
 app.include_router(productos.router)
+app.include_router(reportes.router)
