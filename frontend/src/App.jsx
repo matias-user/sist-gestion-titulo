@@ -8,7 +8,8 @@ import Asistencia from './components/Asistencia';
 import ProtectedRoute from './components/ProtectedRoute';
 import GestionCatalogos from './components/GestionCatalogos';
 import Asignaciones from './components/Asignaciones';
-import Home from './components/Home'; // Importamos la nueva vista
+import Mermas from './components/Mermas';
+import Home from './components/Home'; 
 
 export default function App() {
   const { usuario } = useAuth();
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/asistencia" element={<Asistencia />} />
           <Route path="/asignaciones" element={<Asignaciones />} />
           <Route path="/catalogos" element={<GestionCatalogos />} />
+          <Route path="/mermas" element={<Mermas />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
