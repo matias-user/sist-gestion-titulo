@@ -4,16 +4,34 @@ import { useAuth } from '../context/AuthContext';
 import { Container, Typography, Button, Box, Card, CardContent, Chip } from '@mui/material';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import CategoryIcon from '@mui/icons-material/Category';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+
+// Mapeos estáticos basados en los registros maestros (Seeds) de la BBDD
+const MAPA_ROLES = {
+  1: 'Super Administrador',
+  2: 'Administrador',
+  3: 'Básico'
+};
+
+const MAPA_AREAS = {
+  1: 'Informática',
+  2: 'Producción',
+  3: 'Personas'
+};
 
 export default function Home() {
-  // Extraemos al usuario activo y la función de limpieza desde el cerebro central
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout(); // 1. Destruye el token del storage y la memoria de React
-    navigate('/login'); // 2. Expulsa instantáneamente al Login
+    logout();
+    navigate('/login');
   };
+
+  // Obtener los nombres a partir de los IDs
+  const nombreRol = MAPA_ROLES[usuario?.id_rol] || `Rol #${usuario?.id_rol}`;
+  const nombreArea = MAPA_AREAS[usuario?.id_area] || `Área #${usuario?.id_area}`;
 
   return (
     <Container maxWidth="md" sx={{ mt: 5 }}>
@@ -22,56 +40,60 @@ export default function Home() {
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
             Bienvenido, {usuario?.nombre_completo}
           </Typography>
-
+          
+          {/* Badges / Chips con nombres legibles */}
           <Box sx={{ display: 'flex', gap: 1, mb: 4 }}>
-            <Chip label={`Rol ID: ${usuario?.id_rol}`} color="primary" />
-            <Chip label={`Área ID: ${usuario?.id_area}`} color="secondary" />
+            <Chip label={`Rol: ${nombreRol}`} color="primary" sx={{ fontWeight: 'bold' }} />
+            <Chip label={`Área: ${nombreArea}`} color="secondary" sx={{ fontWeight: 'bold' }} />
           </Box>
 
-          <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
-            <Button
-              variant="contained"
-              color="error"
+          {/* Contenedor flexible de botones */}
+          <Box 
+            sx={{ 
+              mt: 4, 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: 2, 
+              width: '100%',
+              alignItems: 'center'
+            }}
+          >
+            <Button 
+              variant="contained" 
+              color="error" 
               startIcon={<ExitToAppIcon />}
               onClick={handleLogout}
             >
               Cerrar Sesión
             </Button>
 
-            {/* GUARDIA VISUAL: Solo Super Admin (1) o Admin (2) verán este botón */}
-            {(usuario?.id_rol === 1 || usuario?.id_rol === 2) && (
-              <Button
-                variant="outlined"
-                startIcon={<GroupAddIcon />}
-                onClick={() => navigate('/registro')}
-              >
-                Registrar Nuevos Usuarios
-              </Button>
-
-            )}
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={() => navigate('/asignaciones')}
-            >
-              Ver Asignaciones
-            </Button>
-            {/* GUARDIA VISUAL: Solo Super Admin (1) o Admin (2) verán estos botones */}
+            {/* Acciones restringidas por perfil (RBAC) */}
             {(usuario?.id_rol === 1 || usuario?.id_rol === 2) && (
               <>
-                <Button
-                  variant="outlined"
+                <Button 
+                  variant="outlined" 
+                  startIcon={<GroupAddIcon />}
                   onClick={() => navigate('/registro')}
                 >
-                  Registrar Nuevos Usuarios
+                  Registrar Usuarios
                 </Button>
 
-                <Button
-                  variant="contained"
-                  color="info"
+                <Button 
+                  variant="contained" 
+                  color="warning" 
+                  startIcon={<CategoryIcon />}
                   onClick={() => navigate('/catalogos')}
                 >
-                  Administrar Catálogos
+                  Gestión de Catálogos
+                </Button>
+
+                <Button 
+                  variant="contained" 
+                  color="error" 
+                  startIcon={<WarningAmberIcon />}
+                  onClick={() => navigate('/mermas')}
+                >
+                  Registro de Mermas
                 </Button>
               </>
             )}
