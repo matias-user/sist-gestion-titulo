@@ -74,15 +74,3 @@ def obtener_mermas(
 @router.get("/productos", response_model=list[schemas.ProductoResponse])
 def obtener_productos(db: Session = Depends(get_db)):
     return db.query(models.Producto).all()
-
-@router.post("/productos", response_model=schemas.ProductoResponse, status_code=status.HTTP_201_CREATED)
-def crear_producto(
-    producto: schemas.ProductoCreate,
-    db: Session = Depends(get_db),
-    admin_actual: models.Usuario = Depends(auth.requerir_roles([1, 2]))
-):
-    nuevo = models.Producto(**producto.model_dump())
-    db.add(nuevo)
-    db.commit()
-    db.refresh(nuevo)
-    return nuevo
