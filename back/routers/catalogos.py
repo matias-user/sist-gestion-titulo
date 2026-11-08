@@ -20,7 +20,6 @@ def obtener_areas(db: Session = Depends(get_db)):
     """Retorna la lista de áreas organizacionales."""
     return db.query(models.Area).all()
 
-# --- NUEVOS ENDPOINTS PARA TIPOS DE ASIGNACIÓN ---
 @router.post("/tipos-asignacion", response_model=schemas.TipoAsignacionResponse, status_code=status.HTTP_201_CREATED)
 def crear_tipo_asignacion(
     tipo: schemas.TipoAsignacionCreate, 
@@ -36,3 +35,8 @@ def crear_tipo_asignacion(
 @router.get("/tipos-asignacion", response_model=list[schemas.TipoAsignacionResponse])
 def obtener_tipos_asignacion(db: Session = Depends(get_db)):
     return db.query(models.TipoAsignacion).all()
+
+
+@router.get("/tipos-merma")
+def obtener_tipos_merma(db: Session = Depends(get_db)):
+    return db.query(models.TipoMerma).all()
