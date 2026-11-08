@@ -6,6 +6,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import CategoryIcon from '@mui/icons-material/Category';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 
 // Mapeos estáticos basados en los registros maestros (Seeds) de la BBDD
 const MAPA_ROLES = {
@@ -40,7 +41,7 @@ export default function Home() {
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
             Bienvenido, {usuario?.nombre_completo}
           </Typography>
-          
+
           {/* Badges / Chips con nombres legibles */}
           <Box sx={{ display: 'flex', gap: 1, mb: 4 }}>
             <Chip label={`Rol: ${nombreRol}`} color="primary" sx={{ fontWeight: 'bold' }} />
@@ -48,19 +49,19 @@ export default function Home() {
           </Box>
 
           {/* Contenedor flexible de botones */}
-          <Box 
-            sx={{ 
-              mt: 4, 
-              display: 'flex', 
-              flexWrap: 'wrap', 
-              gap: 2, 
+          <Box
+            sx={{
+              mt: 4,
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 2,
               width: '100%',
               alignItems: 'center'
             }}
           >
-            <Button 
-              variant="contained" 
-              color="error" 
+            <Button
+              variant="contained"
+              color="error"
               startIcon={<ExitToAppIcon />}
               onClick={handleLogout}
             >
@@ -70,30 +71,38 @@ export default function Home() {
             {/* Acciones restringidas por perfil (RBAC) */}
             {(usuario?.id_rol === 1 || usuario?.id_rol === 2) && (
               <>
-                <Button 
-                  variant="outlined" 
+                <Button
+                  variant="outlined"
                   startIcon={<GroupAddIcon />}
                   onClick={() => navigate('/registro')}
                 >
                   Registrar Usuarios
                 </Button>
 
-                <Button 
-                  variant="contained" 
-                  color="warning" 
+                <Button
+                  variant="contained"
+                  color="warning"
                   startIcon={<CategoryIcon />}
                   onClick={() => navigate('/catalogos')}
                 >
                   Gestión de Catálogos
                 </Button>
 
-                <Button 
-                  variant="contained" 
-                  color="error" 
+                <Button
+                  variant="contained"
+                  color="error"
                   startIcon={<WarningAmberIcon />}
                   onClick={() => navigate('/mermas')}
                 >
                   Registro de Mermas
+                </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<Inventory2Icon />}
+                  onClick={() => navigate('/productos')}
+                >
+                  Gestión de Productos
                 </Button>
               </>
             )}
