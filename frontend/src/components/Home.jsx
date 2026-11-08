@@ -7,6 +7,7 @@ import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import CategoryIcon from '@mui/icons-material/Category';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 // Mapeos estáticos basados en los registros maestros (Seeds) de la BBDD
 const MAPA_ROLES = {
@@ -103,6 +104,14 @@ export default function Home() {
                   onClick={() => navigate('/productos')}
                 >
                   Gestión de Productos
+                </Button>
+                <Button
+                  variant="contained"
+                  color="info"
+                  startIcon={<AssessmentIcon />}
+                  onClick={() => navigate('/reportes')}
+                >
+                  Reportería Web
                 </Button>
               </>
             )}
